@@ -1,62 +1,69 @@
 const express = require('express');
-const app = express();
-const port = 5000; // Change the port number if necessary
+ const mongoose = require('mongoose');
+  const Service = require('./models/services');
+  const Experience = require('./models/experiences');
+  const cors = require('cors');
+ //express app
+ const app = express();
+ app.use(cors());
 
-// Set up middleware to parse JSON requests
-app.use(express.json());
+ //connect to mongodb
+ const dbURI = 'mongodb+srv://mewoabi:doremi@cluster0.lvz80tk.mongodb.net/portfolio?retryWrites=true&w=majority';
 
-// Define routes here
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+ mongoose.connect(dbURI)
+   .then(result=>{
+      console.log('connected to db');
+      app.listen(5000);
+   })
+ .catch(err=>console.log(err));
  
-const MongoClient = require('mongodb').MongoClient;
-const uri = 'mongodb://127.0.0.1:27017/portfolio'; // Replace 'portfolio' with your desired database name
 
-MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-  if (err) {
-    console.log('Error connecting to the database:', err);
-  } else {
-    const db = client.db();
-    console.log('Connected to the database');
+// register view engine
+ app.set('view engine','ejs');
 
-    // Define your routes and other functionality that interacts with the database here
+ //using middlewares
+ app.use(express.static('public'));
 
-    // Example route for getting services
-app.get('/api/service/services', (req, res) => {
-  const servicesCollection = db.collection('services');
-  servicesCollection.find().toArray((err, services) => {
-    if (err) {
-      console.log('Error retrieving services:', err);
-      res.status(500).json({ error: 'Failed to retrieve services' });
-    } else {
-      res.json(services);
-    }
-  });
-});
+ let data;
 
-// Example route for getting experiences
-app.get('/api/experience/experiences', (req, res) => {
-  const experiencesCollection = db.collection('experiences');
-  experiencesCollection.find().toArray((err, experiences) => {
-    if (err) {
-      console.log('Error retrieving experiences:', err);
-      res.status(500).json({ error: 'Failed to retrieve experiences' });
-    } else {
-      res.json(experiences);
-    }
-  });
-});
+//mongoose and mongo sandbox routes
+ app.get('/api/service/services',(req,res)=>{
+  Service.find()
+    .then(result=>{
+      data = result;
+      res.send(data);
+    })
+    .catch(err=>console.log(err));
+ });
 
-    // Close the database connection when the server is stopped
-    process.on('SIGINT', () => {
-      client.close();
-      console.log('Disconnected from the database');
-      process.exit();
-    });
-  }
-});
+ app.get('/api/experience/experiences',(req,res)=>{
+  Experience.find()
+  .then(result=>{
+    data = result;
+    res.send(data);
+  })
+  .catch(err=>console.log(err));
+ })
 
-  
+//  app.get('/',(req,res)=>{
+//    const blogs = [
+//       {title:"yoshi finds eggs",snippet:'lorem ipsum'},
+//       {title:"mario finds stars",snippet:'lorem ipsum'},
+//        {title:"how to defeat bowser",snippet:'lorem ipsum'}
+//    ] 
+
+//    res.render('index',{title:'Home',blogs});
+//  });
+
+
+
+//   app.get('/about',(req,res)=>{
+//    res.render('about',{title:'About'});
+//  });
+ 
+// app.get ('/blogs/create',(req,res)=>{
+//    res.render('create',{title:'Create a new blog'});
+// })
+
+//  app.use((req,res)=>{
+//     res.status(404).render('404',{title:'404'})});

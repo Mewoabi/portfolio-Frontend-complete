@@ -6,7 +6,7 @@ import List from '../List';
 
 const ListServices = () => {
 
-  const { data,isPending,error } = useFetch("http://localhost:5000/api/service/services");
+  const { data,isPending,error } = useFetch("https://dorayback.onrender.com/api/service/services");
 
   // const [data,setData] = useState([
   //   {
